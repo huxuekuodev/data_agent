@@ -1,6 +1,6 @@
-def main():
-    print("Hello from data-agent!")
+from loguru import logger
 
-
-if __name__ == "__main__":
-    main()
+logger.info("Hello from data-agent!")
+logger.debug("Hello from data-agent!")
+logger.error("Hello from data-agent!")
+logger.warning("Hello from data-agent!")

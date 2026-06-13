@@ -10,28 +10,28 @@ logging:
     level: INFO
 
 db_meta:
-  host: localhost
+  host: 82.156.200.4
   port: 3306
   user: atguigu
   password: Atguigu.123
   database: meta
 
 db_dw:
-  host: localhost
+  host: 82.156.200.4
   port: 3306
   user: atguigu
   password: Atguigu.123
   database: dw
 
 qdrant:
-  host: localhost
+  host: 82.156.200.4
   port: 6333
   embedding_size: 1024
 
 embedding:
   host: localhost
-  port: 8081
-  model: BAAI/bge-large-zh-v1.5
+  port: 11434
+  model: qwen3-embedding:4b
 
 
 es:
@@ -44,3 +44,11 @@ llm:
   model_name: gpt-5.2-codex
   api_key: <api-key>
   base_url: https://api.openai-proxy.org/v1
+
+
+milvus:
+  host: localhost
+  port: 19530
+  token: root:Milvus
+  collection_name: test_data_agent
+  embedding_size: 1024
