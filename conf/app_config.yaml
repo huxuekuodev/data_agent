@@ -45,6 +45,11 @@ llm:
   api_key: <api-key>
   base_url: https://api.openai-proxy.org/v1
 
+siliconFlow_embedding:
+  base_url: https://api.siliconflow.cn/v1
+  model: BAAI/bge-large-zh-v1.5
+  token: sk-isjclcfkxewxtilnhsejwszghbwirhhprmdcraknmsnuqtzr
+  embedding_size: 1024
 
 milvus:
   host: localhost

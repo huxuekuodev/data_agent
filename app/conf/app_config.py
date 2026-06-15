@@ -75,6 +75,14 @@ class MilvusConfig:
 
 
 @dataclass
+class SiliconFlowEmbeddingConfig:
+    base_url: str
+    model: str
+    token: str
+    embedding_size: int = 1024
+
+
+@dataclass
 class AppConfig:
     logging: LoggingConfig
     db_meta: DBConfig
@@ -84,6 +92,7 @@ class AppConfig:
     embedding: EmbeddingConfig
     es: ESConfig
     llm: LLMConfig
+    siliconFlow_embedding: SiliconFlowEmbeddingConfig
 
 
 app_config_path = Path(__file__).parents[2] / "conf" / "app_config.yaml"

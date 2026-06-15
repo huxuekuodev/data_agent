@@ -4,7 +4,14 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
 # 导入原生的异步客户端、数据类型和索引/查询构造器
-from pymilvus import AsyncMilvusClient, DataType, Function, FunctionType
+from pymilvus import (
+    AsyncMilvusClient,
+    DataType,
+    Function,
+    FunctionType,
+    connections,
+    utility,
+)
 
 from app.clients.embedding_client import OllamaEmbedding
 from app.conf.app_config import MilvusConfig, app_config
@@ -16,16 +23,16 @@ class MilvusClientManager:
     def __init__(self, config: MilvusConfig):
         self.config = config
         self.collection_name = config.collection_name
-
         # 1. 初始化原生的异步客户端
-        uri = f"http://{config.host}:{config.port}"
-        self.client = AsyncMilvusClient(uri=uri, token=config.token)
+        self.uri = f"http://{config.host}:{config.port}"
+        self.client = AsyncMilvusClient(uri=self.uri, token=config.token)
 
     async def init_collection_and_index(self, drop_old: bool = True):
         """
         异步初始化：支持双索引（HNSW + 稀疏倒排）、内置 BM25 函数以及开启动态字段
         """
         try:
+
             await self.client.drop_collection(self.collection_name)
             logger.info(f"📡 正在异步创建双索引混合检索集合: {self.collection_name}...")
             # 【配置核心一】创建 Schema，并明确开启 enable_dynamic_field=True（自动支持任意 metadata）
@@ -129,6 +136,9 @@ class MilvusClientManager:
 
 milvus_client_manager = MilvusClientManager(config=app_config.milvus)
 
+
+if __name__ == "__main__":
+    print(milvus_client_manager.collection_exists(collection_name="ask_collection"))
 # async def test_milvus_add_document():
 #     # 1. 实例化 Ollama 嵌入模型
 #     logger.info("🤖 正在初始化 OllamaEmbedding 模型...")
