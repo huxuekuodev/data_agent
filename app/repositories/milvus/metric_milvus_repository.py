@@ -1,17 +1,13 @@
-import asyncio
-
-from attr import asdict
 from pymilvus import DataType, Function, FunctionType
 
-from app.clients.milvus_client_manager import milvus_client_manager
 from app.core.decorators import timing
 from app.core.log import logger
 from app.repositories.milvus.base_collection import BaseCollection
 
 
-class DataAgentColumnCollection(BaseCollection):
+class MetricMilvusRepository(BaseCollection):
 
-    name = "data_agent_column"
+    name = "data_agent_metric"
 
     async def load(self):
         logger.info(f"Loading collection {self.name}")
@@ -108,13 +104,3 @@ class DataAgentColumnCollection(BaseCollection):
         )
         logger.info(f"result: {result}")
         return result
-
-
-if __name__ == "__main__":
-
-    async def run_main():
-        client = await milvus_client_manager.get_client()
-        collection = DataAgentColumnCollection(client=client)
-        await collection.load()
-
-    asyncio.run(run_main())

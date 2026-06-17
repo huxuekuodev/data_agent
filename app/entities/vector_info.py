@@ -1,4 +1,3 @@
-
 from dataclasses import dataclass
 
 
@@ -6,4 +5,4 @@ from dataclasses import dataclass
 class VectorInfo:
     id: str
     embeding_text: str
-    metadata: Dict[str, Any]
+    metadata: dict[str, any]

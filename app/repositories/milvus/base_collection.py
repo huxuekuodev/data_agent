@@ -1,19 +1,29 @@
+from abc import abstractmethod
+
 from pymilvus import AsyncMilvusClient
-from pymilvus.exceptions import MilvusException, DescribeCollectionException
+from pymilvus.exceptions import DescribeCollectionException, MilvusException
+
+from app.core.log import logger
 
 
 class BaseCollection:
-    name = ""
-    def __init__(self, client:AsyncMilvusClient):
+    name = "data-agent-metric"
+
+    def __init__(self, client: AsyncMilvusClient):
         self.client = client
 
     # 检查集合是否存在
     async def has_collection(self):
         try:
             # 使用 AsyncGrpcHandler 提供的 describe_collection
-            await self.client._get_connection().describe_collection(collection_name=self.name)
+            logger.info(f"Checking if collection {self.name} exists")
+            logger.info(f"Client type: {type(self.client)}")
+            await self.client._get_connection().describe_collection(
+                collection_name=self.name
+            )
             return True
         except DescribeCollectionException:
+            logger.info(f"Collection {self.name} does not exist")
             # 明确是集合不存在
             return False
         except MilvusException as e:
