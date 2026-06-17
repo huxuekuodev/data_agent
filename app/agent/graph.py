@@ -36,26 +36,30 @@ graph_builder.add_node("execute_sql", execute_sql)
 
 # 添加关系
 graph_builder.add_edge(START, "extract_keywords")
-graph_builder.add_edge("extract_keywords", "recall_column")
-graph_builder.add_edge("extract_keywords", "recall_value")
-graph_builder.add_edge("extract_keywords", "recall_metric")
-graph_builder.add_edge("recall_column", "merge_retrieved_info")
-graph_builder.add_edge("recall_value", "merge_retrieved_info")
-graph_builder.add_edge("recall_metric", "merge_retrieved_info")
-graph_builder.add_edge("merge_retrieved_info", "filter_table")
-graph_builder.add_edge("merge_retrieved_info", "filter_metric")
-graph_builder.add_edge("filter_table", "add_extra_context")
-graph_builder.add_edge("filter_metric", "add_extra_context")
-graph_builder.add_edge("add_extra_context", "generate_sql")
-graph_builder.add_edge("generate_sql", "validate_sql")
+# graph_builder.add_edge("extract_keywords", "recall_column")
+# graph_builder.add_edge("extract_keywords", "recall_value")
+# graph_builder.add_edge("extract_keywords", "recall_metric")
+# graph_builder.add_edge("recall_column", "merge_retrieved_info")
+# graph_builder.add_edge("recall_value", "merge_retrieved_info")
+# graph_builder.add_edge("recall_metric", "merge_retrieved_info")
+# graph_builder.add_edge("merge_retrieved_info", "filter_table")
+# graph_builder.add_edge("merge_retrieved_info", "filter_metric")
+# graph_builder.add_edge("filter_table", "add_extra_context")
+# graph_builder.add_edge("filter_metric", "add_extra_context")
+# graph_builder.add_edge("add_extra_context", "generate_sql")
+# graph_builder.add_edge("generate_sql", "validate_sql")
 
-graph_builder.add_conditional_edges(
-    "validate_sql",
-    lambda state: "execute_sql" if state["error"] is None else "correct_sql",
-    {"execute_sql": "execute_sql", "correct_sql": "correct_sql"},
-)
+# graph_builder.add_conditional_edges(
+#     "validate_sql",
+#     lambda state: "execute_sql" if state["error"] is None else "correct_sql",
+#     {"execute_sql": "execute_sql", "correct_sql": "correct_sql"},
+# )
 
-graph_builder.add_edge("correct_sql", "execute_sql")
-graph_builder.add_edge("execute_sql", END)
+# graph_builder.add_edge("correct_sql", "execute_sql")
+# graph_builder.add_edge("execute_sql", END)
 
 graph = graph_builder.compile()
+
+
+if __name__ == "__main__":
+    asyncio.run(graph.ainvoke({"query": "统计华北地区的销售总额"}))
