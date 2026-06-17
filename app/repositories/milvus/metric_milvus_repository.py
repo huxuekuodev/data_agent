@@ -104,3 +104,15 @@ class MetricMilvusRepository(BaseCollection):
         )
         logger.info(f"result: {result}")
         return result
+
+    @timing
+    async def search(self, data: list[any], limit: int = 5):
+        result = await self.client.search(
+            collection_name=self.name,
+            data=[data],
+            anns_field="vector",
+            limit=limit,
+            output_fields=["metadata"],
+            search_params={"metric_type": "COSINE"},
+        )
+        return result[0]

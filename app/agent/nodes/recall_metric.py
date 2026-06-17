@@ -17,12 +17,15 @@ async def recall_metric(state: DataAgentState, runtime: Runtime[DataAgentContext
     query = state["query"]
     keywords = state["keywords"]
 
-    embedding_client = runtime.context['embedding_client']
-    metric_qdrant_repository = runtime.context['metric_qdrant_repository']
+    embedding_client = runtime.context["embedding_client"]
+    metric_milvus_repository = runtime.context["metric_milvus_repository"]
 
     try:
         # 使用LLM扩展关键词
-        prompt = PromptTemplate(template=load_prompt("extend_keywords_for_metric_recall"), input_variables=["query"])
+        prompt = PromptTemplate(
+            template=load_prompt("extend_keywords_for_metric_recall"),
+            input_variables=["query"],
+        )
         output_parser = JsonOutputParser()
 
         chain = prompt | llm | output_parser
@@ -36,7 +39,9 @@ async def recall_metric(state: DataAgentState, runtime: Runtime[DataAgentContext
         logger.info(f"召回指标信息扩展关键词：{keywords}")
         for keyword in keywords:
             embedding = await embedding_client.aembed_query(keyword)
-            payloads: list[MetricInfo] = await metric_qdrant_repository.search(embedding)
+            payloads: list[MetricInfo] = await metric_milvus_repository.search(
+                embedding
+            )
             for payload in payloads:
                 metric_id = payload.id
                 if metric_id not in retrieved_metrics_map:
