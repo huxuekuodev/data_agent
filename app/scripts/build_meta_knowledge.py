@@ -5,9 +5,12 @@ from pathlib import Path
 from app.clients.mysql_client_manager import dw_mysql_client_manager
 from app.repositories.mysql.dw.dw_mysql_repository import DWMySQLRepository
 from app.services.meta_knowledge_service import MetaKnowledgeService
+from app.clients.milvus_client_manager import milvus_client_manager
+
 
 
 async def run(config_path: Path):
+    await milvus_client_manager.init_collections()
     async with dw_mysql_client_manager.session_factory() as session:
         meta_knowledge_service = MetaKnowledgeService(
             dw_mysql_repository=DWMySQLRepository(session=session)
@@ -22,4 +25,5 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     config_path = Path(args.config_path)
+    
     asyncio.run(run(config_path=config_path))
