@@ -1,7 +1,6 @@
 from langchain.chat_models import init_chat_model
 
 from app.conf.app_config import app_config
-from app.core.decorators import timing
 
 llm = init_chat_model(
     model=app_config.llm.model_name,
@@ -12,11 +11,6 @@ llm = init_chat_model(
 )
 
 
-@timing
-def test():
+if __name__ == "__main__":
     response = llm.invoke("你好")
     print(response.content)
-
-
-if __name__ == "__main__":
-    test()

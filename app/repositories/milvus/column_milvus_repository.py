@@ -13,6 +13,7 @@ class DataAgentColumnCollection(BaseCollection):
 
     name = "data_agent_column"
 
+    @timing
     async def load(self):
         logger.info(f"Loading collection {self.name}")
         has = await self.has_collection()
@@ -108,6 +109,18 @@ class DataAgentColumnCollection(BaseCollection):
         )
         logger.info(f"result: {result}")
         return result
+
+    @timing
+    async def search(self, data: list[any], limit: int = 5):
+        result = await self.client.search(
+            collection_name=self.name,
+            data=[data],
+            anns_field="vector",
+            limit=limit,
+            output_fields=["metadata"],
+            search_params={"metric_type": "COSINE"},
+        )
+        return result[0]
 
 
 if __name__ == "__main__":

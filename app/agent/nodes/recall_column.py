@@ -8,6 +8,7 @@ from app.agent.state import DataAgentState
 from app.core.log import logger
 from app.entities.column_info import ColumnInfo
 from app.prompt.prompt_loader import load_prompt
+from app.repositories.milvus.column_milvus_repository import DataAgentColumnCollection
 
 
 async def recall_column(state: DataAgentState, runtime: Runtime[DataAgentContext]):
@@ -18,7 +19,7 @@ async def recall_column(state: DataAgentState, runtime: Runtime[DataAgentContext
     keywords = state["keywords"]
 
     embedding_client = runtime.context["embedding_client"]
-    column_qdrant_repository = runtime.context["column_qdrant_repository"]
+    column_milvus_repository = runtime.context["column_milvus_repository"]
 
     try:
         # 使用LLM扩展关键词
@@ -39,7 +40,7 @@ async def recall_column(state: DataAgentState, runtime: Runtime[DataAgentContext
         logger.info(f"召回字段信息扩展关键词：{keywords}")
         for keyword in keywords:
             embedding = await embedding_client.aembed_query(keyword)
-            payloads: list[ColumnInfo] = await column_qdrant_repository.search(
+            payloads: list[ColumnInfo] = await column_milvus_repository.search(
                 embedding
             )
             for payload in payloads:

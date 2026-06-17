@@ -17,6 +17,10 @@ from app.agent.nodes.recall_metric import recall_metric
 from app.agent.nodes.recall_value import recall_value
 from app.agent.nodes.validate_sql import validate_sql
 from app.agent.state import DataAgentState
+from app.clients import siliconflow_embeding_client
+from app.clients.milvus_client_manager import milvus_client_manager
+from app.clients.siliconflow_embeding_client import siliconFlowEmbeddingClient
+from app.repositories.milvus.column_milvus_repository import DataAgentColumnCollection
 
 graph_builder = StateGraph(state_schema=DataAgentState, context_schema=DataAgentContext)
 
@@ -36,7 +40,7 @@ graph_builder.add_node("execute_sql", execute_sql)
 
 # 添加关系
 graph_builder.add_edge(START, "extract_keywords")
-# graph_builder.add_edge("extract_keywords", "recall_column")
+graph_builder.add_edge("extract_keywords", "recall_column")
 # graph_builder.add_edge("extract_keywords", "recall_value")
 # graph_builder.add_edge("extract_keywords", "recall_metric")
 # graph_builder.add_edge("recall_column", "merge_retrieved_info")
@@ -57,9 +61,24 @@ graph_builder.add_edge(START, "extract_keywords")
 
 # graph_builder.add_edge("correct_sql", "execute_sql")
 # graph_builder.add_edge("execute_sql", END)
+graph_builder.add_edge("recall_column", END)
 
 graph = graph_builder.compile()
 
 
 if __name__ == "__main__":
-    asyncio.run(graph.ainvoke({"query": "统计华北地区的销售总额"}))
+
+    async def run_test():
+        milvusClient = await milvus_client_manager.get_client()
+        column_milvus_repository = DataAgentColumnCollection(milvusClient)
+        result = await graph.ainvoke(
+            {"query": "统计华北地区的销售总额"},
+            context=DataAgentContext(
+                embedding_client=siliconFlowEmbeddingClient.embeddings,
+                column_milvus_repository=column_milvus_repository,
+            ),
+        )
+        print(result)
+        pass
+
+    asyncio.run(run_test())
