@@ -16,6 +16,7 @@ from app.conf.meta_config import TableConfig
 from app.clients.siliconflow_embeding_client import siliconFlowEmbeddingClient
 from app.repositories.es.value_es_repository import ValueESRepository
 from app.entities.value_info import ValueInfo
+from app.repositories.milvus.column_milvus_repository import DataAgentColumnCollection
 
 
 
@@ -25,6 +26,8 @@ class MetaKnowledgeService:
     dw_mysql_repository: DWMySQLRepository
     meta_mysql_repository: MetaMySQLRepository
     value_es_repository: ValueESRepository
+    column_milvus_repository: DataAgentColumnCollection
+    
 
     async def get_table_data(self,tables:list[TableConfig]):
         """
@@ -134,4 +137,4 @@ class MetaKnowledgeService:
             embiding_list = await siliconFlowEmbeddingClient.embeddings.aembed_documents([info.embeding_text for info in batch])
             # 存储到向量数据库 TODO
             # await self.milvus_repository.create_vector(embiding_list)
-        pass
+            await self.column_milvus_repository.insert(batch)

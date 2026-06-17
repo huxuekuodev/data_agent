@@ -3,7 +3,8 @@ from pymilvus import AsyncMilvusClient
 from app.core.log import logger
 from pymilvus import DataType, Field, Function, FunctionType
 from app.repositories.milvus.base_collection import BaseCollection
-from app.core.models import VectorInfo
+from app.entities.vector_info import VectorInfo
+
 
 
 class DataAgentColumnCollection(BaseCollection):
@@ -68,13 +69,14 @@ class DataAgentColumnCollection(BaseCollection):
         )
         return index_params
 
-    async def create(self, vector_infos: list[VectorInfo],batch_size: int = 20):
+    async def insert(self, vector_infos: list[VectorInfo]):
         """
             创建向量数据
         """
-        self.client.insert()
         await self.client.insert(
             collection_name=self.name,
-            data=vector_infos,
-            batch_size=batch_size,
+            data=[{
+                "text": vector_info.text,
+                "vector": vector_info.vector,
+            } for vector_info in vector_infos],
         )
