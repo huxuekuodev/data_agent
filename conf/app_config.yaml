@@ -41,9 +41,9 @@ es:
 
 
 llm:
-  model_name: gpt-5.2-codex
-  api_key: <api-key>
-  base_url: https://api.openai-proxy.org/v1
+  model_name: Qwen/Qwen3-8B
+  api_key: sk-isjclcfkxewxtilnhsejwszghbwirhhprmdcraknmsnuqtzr
+  base_url: https://api.siliconflow.cn/v1
 
 siliconFlow_embedding:
   base_url: https://api.siliconflow.cn/v1
