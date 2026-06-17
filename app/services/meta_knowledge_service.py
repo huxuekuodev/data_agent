@@ -180,28 +180,28 @@ class MetaKnowledgeService:
         context = OmegaConf.load(config_path)
         schema = OmegaConf.structured(MetaConfig)
         meta_config: MetaConfig = OmegaConf.to_object(OmegaConf.merge(schema, context))
-        # if meta_config.tables:
-        #     table_infos, column_infos, vector_infos, value_infos = (
-        #         await self.get_table_data(meta_config.tables)
-        #     )
-        #     if (
-        #         not table_infos
-        #         or not column_infos
-        #         or not vector_infos
-        #         or not value_infos
-        #     ):
-        #         logger.error("获取元数据表数据失败")
-        #         return
+        if meta_config.tables:
+            table_infos, column_infos, vector_infos, value_infos = (
+                await self.get_table_data(meta_config.tables)
+            )
+            if (
+                not table_infos
+                or not column_infos
+                or not vector_infos
+                or not value_infos
+            ):
+                logger.error("获取元数据表数据失败")
+                return
 
-        #     # 存储到 MySQL数据库
-        #     await self.meta_mysql_repository.save_table_infos(table_infos)
-        #     await self.meta_mysql_repository.save_column_infos(column_infos)
-        #     # 存储到向量数据库
-        #     await self.create_milvus_data(vector_infos)
-        #     # # 存储到 Elasticsearch数据库
-        #     await self.value_es_repository.ensure_index()
-        #     await self.value_es_repository.index(value_infos)
-        #     logger.info("元数据表数据构建完成")
+            # 存储到 MySQL数据库
+            await self.meta_mysql_repository.save_table_infos(table_infos)
+            await self.meta_mysql_repository.save_column_infos(column_infos)
+            # 存储到向量数据库
+            await self.create_milvus_data(vector_infos)
+            # # 存储到 Elasticsearch数据库
+            await self.value_es_repository.ensure_index()
+            await self.value_es_repository.index(value_infos)
+            logger.info("元数据表数据构建完成")
 
         if meta_config.metrics:
             vector_infos = await self._save_db_metrics_data(meta_config.metrics)
