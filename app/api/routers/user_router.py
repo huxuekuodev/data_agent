@@ -1,3 +1,6 @@
+from datetime import datetime, timedelta
+
+import jwt
 from fastapi import APIRouter
 
 from app.api.shemas.user_schema import UserLoginSchema
@@ -15,4 +18,12 @@ async def getUserInfo():
 @user_router.post("/user/login")
 async def Login(login_schema: UserLoginSchema):
     # 登录逻辑
-    return {"message": "登录成功"}
+    jwt_token = jwt.encode(
+        {
+            "username": login_schema.username,
+            "exp": datetime.now() + timedelta(days=15),
+        },
+        "secret",
+        algorithm="HS256",
+    )
+    return {"message": "登录成功", "token": jwt_token}
