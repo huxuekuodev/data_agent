@@ -15,7 +15,7 @@ async def getUserInfo():
     return {"user_id": user_id}
 
 
-@user_router.post("/user/login")
+@user_router.post("/api/user/login")
 async def Login(login_schema: UserLoginSchema):
     # 登录逻辑
     jwt_token = jwt.encode(
