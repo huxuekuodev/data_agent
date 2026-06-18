@@ -77,38 +77,37 @@ class MetaKnowledgeService:
                     column_values = await self.dw_mysql_repository.get_column_values(
                         table.name, column.name, 10
                     )
-                    column_infos.append(
-                        ColumnInfo(
-                            id=f"{table.name}.{column.name}",
-                            name=column.name,
-                            description=column.description,
-                            type=table_columns[column.name],
-                            role=column.role,
-                            table_id=table.name,
-                            alias=column.alias,
-                            examples=column_values,
+                    info = ColumnInfo(
+                        id=f"{table.name}.{column.name}",
+                        name=column.name,
+                        description=column.description,
+                        type=table_columns[column.name],
+                        role=column.role,
+                        table_id=table.name,
+                        alias=column.alias,
+                        examples=column_values,
+                    )
+                    column_infos.append(info)
+                    vector_infos.append(
+                        VectorInfo(
+                            id=str(uuid.uuid4()),
+                            embeding_text=info.name,
+                            metadata=asdict(info),
                         )
                     )
                     vector_infos.append(
                         VectorInfo(
                             id=str(uuid.uuid4()),
-                            embeding_text=column.name,
-                            metadata=asdict(column),
+                            embeding_text=info.description,
+                            metadata=asdict(info),
                         )
                     )
-                    vector_infos.append(
-                        VectorInfo(
-                            id=str(uuid.uuid4()),
-                            embeding_text=column.description,
-                            metadata=asdict(column),
-                        )
-                    )
-                    for alia in column.alias:
+                    for alia in info.alias:
                         vector_infos.append(
                             VectorInfo(
                                 id=str(uuid.uuid4()),
                                 embeding_text=alia,
-                                metadata=asdict(column),
+                                metadata=asdict(info),
                             )
                         )
         except Exception as e:
@@ -194,20 +193,20 @@ class MetaKnowledgeService:
                 return
 
             # 存储到 MySQL数据库
-            await self.meta_mysql_repository.save_table_infos(table_infos)
-            await self.meta_mysql_repository.save_column_infos(column_infos)
-            # 存储到向量数据库
+            # await self.meta_mysql_repository.save_table_infos(table_infos)
+            # await self.meta_mysql_repository.save_column_infos(column_infos)
+            # # 存储到向量数据库
             await self.create_milvus_data(vector_infos)
             # # 存储到 Elasticsearch数据库
-            await self.value_es_repository.ensure_index()
-            await self.value_es_repository.index(value_infos)
+            # await self.value_es_repository.ensure_index()
+            # await self.value_es_repository.index(value_infos)
             logger.info("元数据表数据构建完成")
 
-        if meta_config.metrics:
-            vector_infos = await self._save_db_metrics_data(meta_config.metrics)
-            # 存储到向量数据库
-            await self.create_metric_milvus_data(vector_infos)
-            logger.info("元数据指标数据构建完成")
+        # if meta_config.metrics:
+        #     vector_infos = await self._save_db_metrics_data(meta_config.metrics)
+        #     # 存储到向量数据库
+        #     await self.create_metric_milvus_data(vector_infos)
+        #     logger.info("元数据指标数据构建完成")
 
     @timing
     async def create_milvus_data(

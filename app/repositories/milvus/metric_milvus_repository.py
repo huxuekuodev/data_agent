@@ -2,6 +2,7 @@ from pymilvus import DataType, Function, FunctionType
 
 from app.core.decorators import timing
 from app.core.log import logger
+from app.entities.metric_info import MetricInfo
 from app.repositories.milvus.base_collection import BaseCollection
 
 
@@ -106,7 +107,7 @@ class MetricMilvusRepository(BaseCollection):
         return result
 
     @timing
-    async def search(self, data: list[any], limit: int = 5):
+    async def search(self, data: list[any], limit: int = 5) -> list[MetricInfo]:
         result = await self.client.search(
             collection_name=self.name,
             data=[data],
@@ -115,4 +116,7 @@ class MetricMilvusRepository(BaseCollection):
             output_fields=["metadata"],
             search_params={"metric_type": "COSINE"},
         )
-        return result[0]
+        metadata_list = []
+        for item in result[0]:
+            metadata_list.append(MetricInfo(**item["metadata"]))
+        return metadata_list

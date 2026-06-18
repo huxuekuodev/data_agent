@@ -1,0 +1,17 @@
+from fastapi import APIRouter, Depends
+from fastapi.responses import StreamingResponse
+
+from app.api.shemas.query_schema import QuerySchema
+from app.dependencies.services.query_service import query_service
+from app.services.query_service import QueryService
+
+query_router = APIRouter()
+
+
+@query_router.post("/api/query")
+async def query(
+    query: QuerySchema, query_service: QueryService = Depends(query_service)
+):
+    return StreamingResponse(
+        query_service.query(query.query), media_type="text/event-stream"
+    )

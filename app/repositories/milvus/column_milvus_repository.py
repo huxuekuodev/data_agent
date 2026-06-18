@@ -6,6 +6,7 @@ from pymilvus import DataType, Function, FunctionType
 from app.clients.milvus_client_manager import milvus_client_manager
 from app.core.decorators import timing
 from app.core.log import logger
+from app.entities.column_info import ColumnInfo
 from app.repositories.milvus.base_collection import BaseCollection
 
 
@@ -111,7 +112,7 @@ class DataAgentColumnCollection(BaseCollection):
         return result
 
     @timing
-    async def search(self, data: list[any], limit: int = 5):
+    async def search(self, data: list[any], limit: int = 5) -> list[ColumnInfo]:
         result = await self.client.search(
             collection_name=self.name,
             data=[data],
@@ -120,7 +121,10 @@ class DataAgentColumnCollection(BaseCollection):
             output_fields=["metadata"],
             search_params={"metric_type": "COSINE"},
         )
-        return result[0]
+        metadata_list = []
+        for item in result[0]:
+            metadata_list.append(ColumnInfo(**item["metadata"]))
+        return metadata_list
 
 
 if __name__ == "__main__":

@@ -20,10 +20,16 @@ from app.agent.state import DataAgentState
 from app.clients import siliconflow_embeding_client
 from app.clients.es_client_manager import es_client_manager
 from app.clients.milvus_client_manager import milvus_client_manager
+from app.clients.mysql_client_manager import (
+    dw_mysql_client_manager,
+    meta_mysql_client_manager,
+)
 from app.clients.siliconflow_embeding_client import siliconFlowEmbeddingClient
 from app.repositories.es.value_es_repository import ValueESRepository
 from app.repositories.milvus.column_milvus_repository import DataAgentColumnCollection
 from app.repositories.milvus.metric_milvus_repository import MetricMilvusRepository
+from app.repositories.mysql.dw.dw_mysql_repository import DWMySQLRepository
+from app.repositories.mysql.meta.meta_mysql_repository import MetaMySQLRepository
 
 graph_builder = StateGraph(state_schema=DataAgentState, context_schema=DataAgentContext)
 
@@ -49,22 +55,21 @@ graph_builder.add_edge("extract_keywords", "recall_metric")
 graph_builder.add_edge("recall_column", "merge_retrieved_info")
 graph_builder.add_edge("recall_value", "merge_retrieved_info")
 graph_builder.add_edge("recall_metric", "merge_retrieved_info")
-# graph_builder.add_edge("merge_retrieved_info", "filter_table")
-# graph_builder.add_edge("merge_retrieved_info", "filter_metric")
-# graph_builder.add_edge("filter_table", "add_extra_context")
-# graph_builder.add_edge("filter_metric", "add_extra_context")
-# graph_builder.add_edge("add_extra_context", "generate_sql")
-# graph_builder.add_edge("generate_sql", "validate_sql")
+graph_builder.add_edge("merge_retrieved_info", "filter_table")
+graph_builder.add_edge("merge_retrieved_info", "filter_metric")
+graph_builder.add_edge("filter_table", "add_extra_context")
+graph_builder.add_edge("filter_metric", "add_extra_context")
+graph_builder.add_edge("add_extra_context", "generate_sql")
+graph_builder.add_edge("generate_sql", "validate_sql")
 
-# graph_builder.add_conditional_edges(
-#     "validate_sql",
-#     lambda state: "execute_sql" if state["error"] is None else "correct_sql",
-#     {"execute_sql": "execute_sql", "correct_sql": "correct_sql"},
-# )
+graph_builder.add_conditional_edges(
+    "validate_sql",
+    lambda state: "execute_sql" if state["error"] is None else "correct_sql",
+    {"execute_sql": "execute_sql", "correct_sql": "correct_sql"},
+)
 
-# graph_builder.add_edge("correct_sql", "execute_sql")
-# graph_builder.add_edge("execute_sql", END)
-graph_builder.add_edge("recall_column", END)
+graph_builder.add_edge("correct_sql", "execute_sql")
+graph_builder.add_edge("execute_sql", END)
 
 graph = graph_builder.compile()
 
@@ -73,15 +78,21 @@ if __name__ == "__main__":
 
     async def run_test():
         milvusClient = await milvus_client_manager.get_client()
-        result = await graph.ainvoke(
-            {"query": "统计华北地区的销售总额"},
-            context=DataAgentContext(
-                embedding_client=siliconFlowEmbeddingClient.embeddings,
-                column_milvus_repository=DataAgentColumnCollection(milvusClient),
-                metric_milvus_repository=MetricMilvusRepository(milvusClient),
-                value_es_repository=ValueESRepository(es_client_manager.client),
-            ),
-        )
+        async with (
+            meta_mysql_client_manager.session_factory() as meta_session,
+            dw_mysql_client_manager.session_factory() as dw_mysql_session,
+        ):
+            result = await graph.ainvoke(
+                {"query": "统计华北地区的销售总额"},
+                context=DataAgentContext(
+                    embedding_client=siliconFlowEmbeddingClient.embeddings,
+                    column_milvus_repository=DataAgentColumnCollection(milvusClient),
+                    metric_milvus_repository=MetricMilvusRepository(milvusClient),
+                    value_es_repository=ValueESRepository(es_client_manager.client),
+                    meta_mysql_repository=MetaMySQLRepository(session=meta_session),
+                    dw_mysql_repository=DWMySQLRepository(session=dw_mysql_session),
+                ),
+            )
         # print(result)
         pass
 

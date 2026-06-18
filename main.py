@@ -1,6 +1,7 @@
+from fastapi import FastAPI
 from loguru import logger
 
-logger.info("Hello from data-agent!")
-logger.debug("Hello from data-agent!")
-logger.error("Hello from data-agent!")
-logger.warning("Hello from data-agent!")
+from app.api.routers.query_router import query_router
+
+app = FastAPI()
+app.include_router(query_router)
