@@ -1,9 +1,11 @@
 import asyncio
 
+from langchain_core.runnables import RunnableConfig
 from langgraph.constants import END, START
 from langgraph.graph import StateGraph
 
 from app.agent.context import DataAgentContext
+from app.agent.costom_checkpoint import AsyncMySQLCheckpointSaver
 from app.agent.nodes.add_extra_context import add_extra_context
 from app.agent.nodes.correct_sql import correct_sql
 from app.agent.nodes.execute_sql import execute_sql
@@ -71,7 +73,9 @@ graph_builder.add_conditional_edges(
 graph_builder.add_edge("correct_sql", "execute_sql")
 graph_builder.add_edge("execute_sql", END)
 
-graph = graph_builder.compile()
+checkpoint_saver = AsyncMySQLCheckpointSaver()
+
+graph = graph_builder.compile(checkpointer=checkpoint_saver)
 
 
 if __name__ == "__main__":
@@ -82,8 +86,10 @@ if __name__ == "__main__":
             meta_mysql_client_manager.session_factory() as meta_session,
             dw_mysql_client_manager.session_factory() as dw_mysql_session,
         ):
+            config: RunnableConfig = {"configurable": {"thread_id": "1"}}
             result = await graph.ainvoke(
                 {"query": "统计华北地区的销售总额"},
+                config=config,
                 context=DataAgentContext(
                     embedding_client=siliconFlowEmbeddingClient.embeddings,
                     column_milvus_repository=DataAgentColumnCollection(milvusClient),

@@ -36,6 +36,9 @@ class MySQLClientManager:
 
 dw_mysql_client_manager = MySQLClientManager(config=app_config.db_dw)
 meta_mysql_client_manager = MySQLClientManager(config=app_config.db_meta)
+data_agent_server_mysql_client_manager = MySQLClientManager(
+    config=app_config.db_data_agent_server
+)
 
 
 async def test():

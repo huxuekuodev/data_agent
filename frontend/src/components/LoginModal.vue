@@ -66,7 +66,12 @@ const handleLogin = async () => {
       username: username.value
     })
 
-    authStore.setToken(response.data.token, username.value)
+    // 保存 token、username 和 user_uuid
+    authStore.setToken(
+      response.data.token,
+      response.data.username,
+      response.data.user_uuid
+    )
   } catch (err) {
     error.value = err.response?.data?.message || '登录失败，请重试'
   } finally {

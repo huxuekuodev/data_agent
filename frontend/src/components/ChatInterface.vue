@@ -157,6 +157,13 @@ const handleSendMessage = async () => {
       body: JSON.stringify({ query })
     })
 
+    // 处理认证错误
+    if (response.status === 401) {
+      authStore.clearToken()
+      window.location.reload()
+      return
+    }
+
     if (!response.ok) {
       throw new Error('请求失败')
     }

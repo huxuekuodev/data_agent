@@ -1,5 +1,7 @@
 import json
 
+from langchain_core.runnables import RunnableConfig
+
 from app.agent.context import DataAgentContext
 from app.agent.graph import graph
 from app.clients.siliconflow_embeding_client import PureRequestsEmbeddings
@@ -27,10 +29,19 @@ class QueryService:
         self.meta_mysql_repository = meta_mysql_repository
         self.dw_mysql_repository = dw_mysql_repository
 
-    async def query(self, query: str):
+    async def query(self, query: str, user_uuid: str):
+        """
+        执行查询
+
+        Args:
+            query: 用户查询内容
+            user_uuid: 用户唯一标识（从 token 中解析）
+        """
         try:
+            config: RunnableConfig = {"configurable": {"thread_id": user_uuid}}
             async for chunk in graph.astream(
                 {"query": query},
+                config=config,
                 context=DataAgentContext(
                     embedding_client=self.embedding_client,
                     column_milvus_repository=self.column_milvus_repository,

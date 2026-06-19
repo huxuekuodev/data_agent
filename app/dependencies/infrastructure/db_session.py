@@ -1,4 +1,5 @@
 from app.clients.mysql_client_manager import (
+    data_agent_server_mysql_client_manager,
     dw_mysql_client_manager,
     meta_mysql_client_manager,
 )
@@ -11,4 +12,9 @@ async def get_meta_session():
 
 async def get_dw_session():
     async with dw_mysql_client_manager.session_factory() as session:
+        yield session
+
+
+async def get_data_agent_server_session():
+    async with data_agent_server_mysql_client_manager.session_factory() as session:
         yield session

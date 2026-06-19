@@ -88,6 +88,7 @@ class AppConfig:
     db_meta: DBConfig
     milvus: MilvusConfig
     db_dw: DBConfig
+    db_data_agent_server: DBConfig
     qdrant: QdrantConfig
     embedding: EmbeddingConfig
     es: ESConfig

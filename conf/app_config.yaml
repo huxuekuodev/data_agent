@@ -23,6 +23,13 @@ db_dw:
   password: Atguigu.123
   database: dw
 
+db_data_agent_server:
+  host: 82.156.200.4
+  port: 3306
+  user: root
+  password: Atguigu.123
+  database: data_agent_server
+  
 qdrant:
   host: 82.156.200.4
   port: 6333
