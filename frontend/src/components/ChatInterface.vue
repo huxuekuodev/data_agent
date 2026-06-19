@@ -527,7 +527,7 @@ onMounted(() => {
 .typing-dots .dot {
   width: 8px;
   height: 8px;
-  background: #667eea;
+  background: #0ea5e9;
   border-radius: 50%;
   animation: typingBounce 1.4s infinite ease-in-out;
 }
@@ -669,7 +669,7 @@ onMounted(() => {
 }
 
 .progress-step.running .progress-text {
-  color: #667eea;
+  color: #0ea5e9;
 }
 
 .progress-step.success .progress-text {
